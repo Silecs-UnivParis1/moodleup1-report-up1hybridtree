@@ -15,7 +15,6 @@ require_once(dirname(__DIR__) . '/locallib.php');
 require_once(dirname(__DIR__) . '/ExportReportingCsv.php');
 
 require_once($CFG->dirroot . '/local/coursehybridtree/libcrawler.php');
-require_once($CFG->dirroot . '/local/rof_sync/locallib.php');
 
 // now get cli options
 list($options, $unrecognized) = cli_get_params(array(
@@ -59,20 +58,21 @@ if ( ! empty($options['metastats']) ) {
     return 0;
 }
 
-// Ensure errors are well explained
-$CFG->debug = DEBUG_NORMAL;
-
 if ($options['stats']) {
     statscrawler($options['node'], $options['maxdepth'], $options['verb']);
-} elseif ($options['csv']) {
+    return 0;
+}
+
+if ($options['csv']) {
     if (empty($options['node'])) {
         echo "Please specify --node.\n";
         return 0;
     }
-
-    $export = new ExportReportingCsv($options['node'], $options['maxdepth']);
+    $fhandler = fopen('hybridtree_stats.csv', 'w');
+    $export = new ExportReportingCsv($options['node'], $options['maxdepth'], $fhandler);
     $export->reportcsvcrawler();
-} else {
-    echo "You must specify --help or --stats or --csv.\n";
+    fclose($fhandler);
+    return 0;
 }
 
+echo "You must specify --help or --stats or --csv.\n";

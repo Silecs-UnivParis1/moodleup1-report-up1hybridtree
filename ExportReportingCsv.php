@@ -21,11 +21,16 @@ class ExportReportingCsv {
     private $csvFileHandle;
 
     
-    public function __construct($rootnode, $maxdepth=6) {
+    public function __construct($rootnode, $maxdepth=6, $fhandler=null) {
         global $DB;
         $this->rootnode = $rootnode;
         $this->maxdepth = $maxdepth;
         $this->reportingTimestamp = $DB->get_field_sql('SELECT MAX(timecreated) FROM {report_up1hybridtree} ');
+        if ($fhandler === null) {
+            $this->csvFileHandle = fopen("php://output", "w");
+        } else {
+            $this->csvFileHandle = $fhandler;
+        }
     }
 
     /**
@@ -33,8 +38,6 @@ class ExportReportingCsv {
      */
     public function reportcsvcrawler() {
         $tree = CourseHybridTree::createTree($this->rootnode);
-
-        $this->csvFileHandle = fopen("php://output", "w");
         $this->csvheader();
         internalcrawler($tree, $this->maxdepth, array($this, 'crawl_csvrow'), array());
         fclose($this->csvFileHandle);

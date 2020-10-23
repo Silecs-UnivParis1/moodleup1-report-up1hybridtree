@@ -122,20 +122,26 @@ function up1hybridtree_last_records($howmany) {
 function statscrawler($rootnode, $maxdepth = 6, $verb) {
     global $ReportingTimestamp, $CourseInnerStats;
 
+echo "Creating hybrid tree... ";
     if ($rootnode) {
         $tree = CourseHybridTree::createTree($rootnode);
     } else  {
         $tree = CourseHybridTree::createTree('/cat0');
     }
+echo "OK.\n";
     $ReportingTimestamp = time();
     $enable = array('countcourses'=>true, 'enrolled'=>true, 'activities'=>true);
     $crawlparams = array('enable' => $enable, 'verb' => $verb);
 
     if ($enable['activities']) {
         // computes one time only the global course activity statistics
+echo "Computing Inner course activities... ";
         $CourseInnerStats = get_inner_activity_all_courses();
+echo "OK.\n";
     }
+echo "Launching internalcrawler... ";
     internalcrawler($tree, $maxdepth, 'crawl_stats', $crawlparams);
+echo "OK.\n";
 }
 
 /**
@@ -149,7 +155,7 @@ function crawl_stats($node, $extraparams) {
     $verb = $extraparams['verb'];
     $enable = $extraparams['enable'];
     $nodepath = $node->getAbsolutePath();
-    progressBar($verb, 1, "\n" . $node->getAbsoluteDepth() . "  " . $nodepath . "  ");
+    rhtProgressBar($verb, 1, "\n" . $node->getAbsoluteDepth() . "  " . $nodepath . "  ");
     $starttime = microtime(true);
     $descendantcourses = $node->listDescendantCourses();
     $coursesnumbers = array();
@@ -157,21 +163,21 @@ function crawl_stats($node, $extraparams) {
     $activitycount = array();
 
     if ($enable['countcourses']) {
-        progressBar($verb, 2, "\nCompute courses number (total, visible, active)... \n");
+        rhtProgressBar($verb, 2, "\nCompute courses number (total, visible, active)... \n");
         $coursesnumbers = get_courses_numbers($descendantcourses, $activedays=90);
     }
 
     if ($enable['enrolled']) {
-        progressBar($verb, 2, "Count enrolled users (by role and total)... \n");
+        rhtProgressBar($verb, 2, "Count enrolled users (by role and total)... \n");
         $usercount = get_usercount_from_courses($descendantcourses, $verb);
     }
 
     if ($enable['activities']) {
-        progressBar($verb, 2, "Count and add inner course activity... \n");
+        rhtProgressBar($verb, 2, "Count and add inner course activity... \n");
         $activitycount = sum_inner_activity_for_courses($descendantcourses);
     }
 
-    progressBar($verb, 3, "\n" . (string)(microtime(true) - $starttime) . " s.\n");
+    rhtProgressBar($verb, 3, "\n" . (string)(microtime(true) - $starttime) . " s.\n");
 
     update_reporting_table($nodepath, array_merge($coursesnumbers, $usercount, $activitycount));
     return true;
@@ -215,9 +221,9 @@ function get_usercount_from_courses($courses, $verb) {
     $res = array();
 
     $total = 0;
-    progressbar($verb, 2, "  all ");
+    rhtProgressBar($verb, 2, "  all ");
     foreach ($targetroles as $role) {
-        progressbar($verb, 2, "  $role ");
+        rhtProgressBar($verb, 2, "  $role ");
         $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, false, $verb);
         $total += $mycount;
         $res['enrolled:' . $role . ':all'] = $mycount;
@@ -225,9 +231,9 @@ function get_usercount_from_courses($courses, $verb) {
     $res['enrolled:total:all'] = $total;
 
     $total = 0;
-    progressbar($verb, 2, "  neverconnected ");
+    rhtProgressBar($verb, 2, "  neverconnected ");
     foreach ($targetroles as $role) {
-        progressbar($verb, 2, "  $role ");
+        rhtProgressBar($verb, 2, "  $role ");
         $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, true, $verb);
         $total += $mycount;
         $res['enrolled:' . $role . ':neverconnected'] = $mycount;
@@ -293,6 +299,9 @@ global $CourseInnerStats;
 
     $res = get_zero_activity_stats();
     foreach ($courses as $courseid) {
+        if (! $CourseInnerStats[$courseid]) {
+            continue;
+        }
         foreach ($CourseInnerStats[$courseid] as $name => $value) {
             $res[$name] += $value;
         }
@@ -301,9 +310,11 @@ global $CourseInnerStats;
 }
 
 function get_inner_activity_all_courses() {
+    /** @todo GA : WHERE visible=1 à conserver ? */
     global $DB;
-    $allcourses = $DB->get_fieldset_sql('SELECT id FROM {course} ORDER BY id', array());
+    $allcourses = $DB->get_fieldset_sql('SELECT id FROM {course} WHERE visible=1 ORDER BY id', array());
     foreach ($allcourses as $course) {
+echo ".";
         $res[$course] = get_inner_activity_stats($course);
     }
     return $res;
@@ -375,4 +386,10 @@ function count_inner_assign_posts($course) {
            "JOIN {assign} a ON (asu.assignment = a.id) " .
            "WHERE a.course = ?";
     return $DB->get_field_sql($sql, array($course), MUST_EXIST);
+}
+
+function rhtProgressBar($verb, $verbmin, $text) {
+    if ($verb >= $verbmin) {
+        echo $text;
+    }
 }

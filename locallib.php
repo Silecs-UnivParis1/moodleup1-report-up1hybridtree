@@ -1,11 +1,8 @@
 <?php
 
 /**
- * Administrator reporting
- *
- * @package    report
- * @subpackage up1reporting
- * @copyright  2013-2015 Silecs {@link http://www.silecs.info/societe}
+ * @package    report_up1hybridtree
+ * @copyright  2013-2020 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -86,29 +83,29 @@ function get_parentcat() {
 // ***** Log statistics *****
 
 function cli_meta_statistics() {
-    echo "Number of statpoints = " . up1reporting_count_timestamps() . "\n\n";
+    echo "Number of statpoints = " . up1hybridtree_count_timestamps() . "\n\n";
 
     echo "Details:\n";
-    $timestats = up1reporting_last_records(1000);
+    $timestats = up1hybridtree_last_records(1000);
     echo "Timestamp            Criters Nodes Records\n";
     foreach ($timestats as $stats) {
         printf("%s  %6d %6d %6d \n", $stats->timestamp, $stats->crit, $stats->nodes, $stats->records);
     }
 }
 
-function up1reporting_count_timestamps() {
+function up1hybridtree_count_timestamps() {
     global $DB;
 
-    return $DB->count_records_sql("SELECT COUNT(DISTINCT timecreated) FROM {report_up1reporting}");
+    return $DB->count_records_sql("SELECT COUNT(DISTINCT timecreated) FROM {report_up1hybridtree}");
 }
 
-function up1reporting_last_records($howmany) {
+function up1hybridtree_last_records($howmany) {
     global $DB;
 
-    // $lastrecord = $DB->get_field_sql("SELECT LAST(timecreated) FROM {report_up1reporting}");
+    // $lastrecord = $DB->get_field_sql("SELECT LAST(timecreated) FROM {report_up1hybridtree}");
     $sql = "SELECT FROM_UNIXTIME(timecreated) AS timestamp, "
          . "COUNT(DISTINCT name) AS crit, COUNT(DISTINCT objectid) AS nodes, COUNT(id) as records "
-         . "FROM {report_up1reporting} GROUP BY timecreated ORDER BY timecreated DESC LIMIT " . $howmany;
+         . "FROM {report_up1hybridtree} GROUP BY timecreated ORDER BY timecreated DESC LIMIT " . $howmany;
 
     $logs = $DB->get_records_sql($sql);
     return array_values($logs);
@@ -198,7 +195,7 @@ function update_reporting_table($path, $criteria) {
         $record->name = $name;
         $record->value = $value;
         $record->timecreated = $ReportingTimestamp;
-        $lastinsertid = $DB->insert_record('report_up1reporting', $record, false);
+        $lastinsertid = $DB->insert_record('report_up1hybridtree', $record, false);
         if ( ! $lastinsertid) {
             $diag = false;
             echo "Error inserting " . print_r($record, true);

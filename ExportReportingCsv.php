@@ -3,9 +3,9 @@
 /**
  * Administrator reporting
  *
- * @package    report
- * @subpackage up1reporting
- * @copyright  2013-2015 Silecs {@link http://www.silecs.info/societe}
+ * @package    report_up1hybridtree
+ * @subpackage up1hybridtree
+ * @copyright  2013-2020 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -25,7 +25,7 @@ class ExportReportingCsv {
         global $DB;
         $this->rootnode = $rootnode;
         $this->maxdepth = $maxdepth;
-        $this->reportingTimestamp = $DB->get_field_sql('SELECT MAX(timecreated) FROM {report_up1reporting} ');
+        $this->reportingTimestamp = $DB->get_field_sql('SELECT MAX(timecreated) FROM {report_up1hybridtree} ');
     }
 
     /**
@@ -63,7 +63,7 @@ class ExportReportingCsv {
 
         $row = array($node->getAbsoluteDepth(), $node->name, $nodepath);
         $criteria = $DB->get_records_menu(
-            'report_up1reporting',
+            'report_up1hybridtree',
             array('timecreated' => $this->reportingTimestamp, 'object' => 'node', 'objectid' => $nodepath),
             '', 'name, value'
         );
@@ -92,7 +92,7 @@ class ExportReportingCsv {
 
     /**
      * defines the content columns for the export.
-     * The keys must match the content of the table report_up1reporting, otherwise -> empty columns
+     * The keys must match the content of the table report_up1hybridtree, otherwise -> empty columns
      * @return array
      */
     function csvheaderreport() {

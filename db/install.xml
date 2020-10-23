@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="report/up1reporting/db" VERSION="2015010501" COMMENT="XMLDB file for report_up1reporting"
+<XMLDB PATH="report/up1hybridtree/db" VERSION="2020102200" COMMENT="XMLDB file for report_up1hybridtree"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="report_up1reporting" COMMENT="store statistics for reporting based upon CourseHybridTree">
+    <TABLE NAME="report_up1hybridtree" COMMENT="store statistics for reporting based upon CourseHybridTree">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
         <FIELD NAME="object" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="course or node" />

@@ -2,9 +2,8 @@
 // This file is part of a plugin for Moodle - http://moodle.org/
 
 /**
- * @package    local
- * @subpackage up1reporting
- * @copyright  2014-2015 Silecs {@link http://www.silecs.info/societe}
+ * @package    report_up1hybridtree
+ * @copyright  2014-2020 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -1,30 +1,27 @@
 <?php
 
 /**
- * Administrator reporting
- *
- * @package    report
- * @subpackage up1reporting
- * @copyright  2013-2015 Silecs {@link http://www.silecs.info/societe}
+ * @package    report_up1hybridtree
+ * @copyright  2013-2020 Silecs {@link http://www.silecs.info/societe}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define('NO_OUTPUT_BUFFERING', true);
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot.'/report/up1reporting/locallib.php');
-require_once($CFG->dirroot.'/report/up1reporting/cattreecountlib.php');
+require_once($CFG->dirroot.'/report/up1hybridtree/locallib.php');
+require_once($CFG->dirroot.'/report/up1hybridtree/cattreecountlib.php');
 
 require_once($CFG->libdir.'/adminlib.php');
 
 require_login();
-// admin_externalpage_setup('up1reporting', '', null, '', array('pagelayout'=>'report'));
+// admin_externalpage_setup('up1hybridtree', '', null, '', array('pagelayout'=>'report'));
 $parentcat = optional_param('period', 0, PARAM_INT);
 $displaycompact = optional_param('compact', true, PARAM_BOOL);
 
 $systemcontext = context_system::instance();
 $PAGE->set_context($systemcontext);
-$url = "$CFG->wwwroot/report/up1reporting/index.php";
+$url = "$CFG->wwwroot/report/up1hybridtree/index.php";
 $PAGE->set_url($url);
 
 require_capability('moodle/site:config', $systemcontext);
@@ -32,9 +29,9 @@ if ( ! is_siteadmin() ) {
     error('Only for admins');
 }
 // Print the header.
-admin_externalpage_setup('reportup1reporting', '', null, '', array('pagelayout'=>'report'));
+admin_externalpage_setup('reportup1hybridtree', '', null, '', array('pagelayout'=>'report'));
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('pluginname', 'report_up1reporting'));
+echo $OUTPUT->heading(get_string('pluginname', 'report_up1hybridtree'));
 
 $periodes = get_parentcat();
 if ($parentcat == 0 || array_key_exists($parentcat, $periodes) == FALSE) {
@@ -71,12 +68,12 @@ echo $OUTPUT->single_button($paramsurl, $displaymode[ ! $displaycompact], 'get')
 
 <?php
 $linkdetails = html_writer::link(
-        new moodle_url('/report/up1reporting/lastrecords.php', array('number' => 100)),
+        new moodle_url('/report/up1hybridtree/lastrecords.php', array('number' => 100)),
         'détails');
-echo "<p>" . up1reporting_count_timestamps() . " enregistrements (" .$linkdetails. ").</p>\n";
+echo "<p>" . up1hybridtree_count_timestamps() . " enregistrements (" .$linkdetails. ").</p>\n";
 $table = new html_table();
 $table->head = array('Dernier calcul', 'Critères', 'Noeuds', 'Enregistrements');
-$table->data = up1reporting_last_records(1);
+$table->data = up1hybridtree_last_records(1);
 echo html_writer::table($table);
 
 

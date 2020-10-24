@@ -72,7 +72,7 @@ $linkdetails = html_writer::link(
         'détails');
 echo "<p>" . up1hybridtree_count_timestamps() . " enregistrements (" .$linkdetails. ").</p>\n";
 $table = new html_table();
-$table->head = array('Dernier calcul', 'Critères', 'Noeuds', 'Enregistrements');
+$table->head = ['Dernier calcul', 'Noeuds', 'Enregistrements'];
 $table->data = up1hybridtree_last_records(1);
 echo html_writer::table($table);
 

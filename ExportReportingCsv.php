@@ -64,21 +64,14 @@ class ExportReportingCsv {
         global $DB;
         $nodepath = $node->getAbsolutePath();
 
-        $row = array($node->getAbsoluteDepth(), $node->name, $nodepath);
-        $criteria = $DB->get_records_menu(
+        $rowdeb = [$node->getAbsoluteDepth(), $node->name, $nodepath];
+        $counters = json_decode($DB->get_field(
             'report_up1hybridtree',
-            array('timecreated' => $this->reportingTimestamp, 'object' => 'node', 'objectid' => $nodepath),
-            '', 'name, value'
-        );
+            'counters',
+            ['timecreated' => $this->reportingTimestamp, 'object' => 'node', 'objectid' => $nodepath],
+            MUST_EXIST), true);
 
-        foreach ($this->csvheaderreport() as $crit => $critnamefr) {
-            if (isset($criteria[$crit])) {
-                $row[$crit] = $criteria[$crit];
-            } else {
-                $row[$crit] = '';
-            }
-        }
-        fputcsv($this->csvFileHandle, array_values($row), ';');
+        fputcsv($this->csvFileHandle, array_merge($rowdeb, array_values($counters)), ';');
     }
 
     /**

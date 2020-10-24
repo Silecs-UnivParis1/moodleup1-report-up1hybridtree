@@ -11,7 +11,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/up1_courselist/courselist_tools.php');
 require_once($CFG->dirroot . '/local/coursehybridtree/libcrawler.php');
 
-global  $ReportingTimestamp, $CourseInnerStats;
+global $ReportingTimestamp, $CourseInnerStats;
+global $Chrono; // à remplacer par un attribut de classe
 
 /**
  * prepare table content to be displayed : UFR | course count | student count | teacher count
@@ -104,7 +105,7 @@ function up1hybridtree_last_records($howmany) {
 
     // $lastrecord = $DB->get_field_sql("SELECT LAST(timecreated) FROM {report_up1hybridtree}");
     $sql = "SELECT FROM_UNIXTIME(timecreated) AS timestamp, "
-         . "COUNT(DISTINCT name) AS crit, COUNT(DISTINCT objectid) AS nodes, COUNT(id) as records "
+         . "COUNT(DISTINCT objectid) AS nodes, COUNT(id) as records "
          . "FROM {report_up1hybridtree} GROUP BY timecreated ORDER BY timecreated DESC LIMIT " . $howmany;
 
     $logs = $DB->get_records_sql($sql);
@@ -122,13 +123,14 @@ function up1hybridtree_last_records($howmany) {
 function statscrawler($rootnode, $maxdepth = 6, $verb) {
     global $ReportingTimestamp, $CourseInnerStats;
 
+chronometer('start');
 echo "Creating hybrid tree... ";
     if ($rootnode) {
         $tree = CourseHybridTree::createTree($rootnode);
     } else  {
         $tree = CourseHybridTree::createTree('/cat0');
     }
-echo "OK.\n";
+echo "OK." . chronometer('restart') . "\n";
     $ReportingTimestamp = time();
     $enable = array('countcourses'=>true, 'enrolled'=>true, 'activities'=>true);
     $crawlparams = array('enable' => $enable, 'verb' => $verb);
@@ -137,11 +139,29 @@ echo "OK.\n";
         // computes one time only the global course activity statistics
 echo "Computing Inner course activities... ";
         $CourseInnerStats = get_inner_activity_all_courses();
-echo "OK.\n";
+echo "OK." . chronometer('restart') . "\n";
     }
 echo "Launching internalcrawler... ";
     internalcrawler($tree, $maxdepth, 'crawl_stats', $crawlparams);
-echo "OK.\n";
+echo "OK." . chronometer('stop') . "\n";
+}
+
+function chronometer(string $action)
+{
+    global $Chrono;
+    if ($action == 'start') {
+        $Chrono = microtime(true);
+        return true;
+    }
+    if ($action == 'restart') {
+        $res = sprintf('%f s.', microtime(true) - $Chrono);
+        $Chrono = microtime(true);
+        return $res;
+    }
+    if ($action == 'stop') {
+        return sprintf('%f s.', microtime(true) - $Chrono);
+    }
+    return false;
 }
 
 /**
@@ -194,19 +214,12 @@ function crawl_stats($node, $extraparams) {
 function update_reporting_table($path, $criteria) {
     global $DB, $ReportingTimestamp;
     $diag = true;
-    foreach ($criteria as $name => $value) {
-        $record = new stdClass();
-        $record->object = 'node';
-        $record->objectid = $path;
-        $record->name = $name;
-        $record->value = $value;
-        $record->timecreated = $ReportingTimestamp;
-        $lastinsertid = $DB->insert_record('report_up1hybridtree', $record, false);
-        if ( ! $lastinsertid) {
-            $diag = false;
-            echo "Error inserting " . print_r($record, true);
-        }
-    }
+    $record = new stdClass();
+    $record->object = 'node';
+    $record->objectid = $path;
+    $record->counters = json_encode($criteria);
+    $record->timecreated = $ReportingTimestamp;
+    $lastinsertid = $DB->insert_record('report_up1hybridtree', $record, false);
     return $diag;
 }
 
@@ -299,7 +312,7 @@ global $CourseInnerStats;
 
     $res = get_zero_activity_stats();
     foreach ($courses as $courseid) {
-        if (! $CourseInnerStats[$courseid]) {
+        if (! isset($CourseInnerStats[$courseid])) {
             continue;
         }
         foreach ($CourseInnerStats[$courseid] as $name => $value) {

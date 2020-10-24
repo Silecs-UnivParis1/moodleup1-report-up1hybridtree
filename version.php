@@ -10,7 +10,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2020102200;       // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2020102401;       // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2020061502;       // Requires this Moodle version
 $plugin->component = 'report_up1hybridtree'; // Full name of the plugin (used for diagnostics)
 

@@ -8,7 +8,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
         <FIELD NAME="object" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="course or node" />
-        <FIELD NAME="objectid" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="courseId or absolutePath" />
+        <FIELD NAME="objectid" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false" COMMENT="courseId or absolutePath" />
         <FIELD NAME="counters" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="serialisation json"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="timestamp of stats computing"/>
       </FIELDS>

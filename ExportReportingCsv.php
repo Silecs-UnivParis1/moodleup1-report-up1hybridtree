@@ -9,10 +9,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use \local_coursehybridtree\crawler;
+use \local_coursehybridtree\CourseHybridTree;
+
 defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/up1_courselist/courselist_tools.php');
-require_once($CFG->dirroot . '/local/coursehybridtree/libcrawler.php');
 
 class ExportReportingCsv {
     public $rootnode; // ex. '/cat10/cat11/cat12' or simply '/cat12' // must match ChtNode::absolutePath()
@@ -39,7 +41,8 @@ class ExportReportingCsv {
     public function reportcsvcrawler() {
         $tree = CourseHybridTree::createTree($this->rootnode);
         $this->csvheader();
-        internalcrawler($tree, $this->maxdepth, array($this, 'crawl_csvrow'), array());
+        $crawling = new crawler(2, $this->maxdepth); // 2=verbosity
+        $crawling->internalcrawler($tree, [$this, 'crawl_csvrow'], []);
         fclose($this->csvFileHandle);
         return true;
     }

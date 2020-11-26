@@ -6,10 +6,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use \local_coursehybridtree\crawler;
+use \local_coursehybridtree\CourseHybridTree;
+
 defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/up1_courselist/courselist_tools.php');
-require_once($CFG->dirroot . '/local/coursehybridtree/libcrawler.php');
 
 global $ReportingTimestamp, $CourseInnerStats;
 global $Chrono; // à remplacer par un attribut de classe
@@ -142,7 +144,8 @@ echo "Computing Inner course activities... ";
 echo "OK." . chronometer('restart') . "\n";
     }
 echo "Launching internalcrawler... ";
-    internalcrawler($tree, $maxdepth, 'crawl_stats', $crawlparams);
+    $crawling = new crawler($verb, $maxdepth);
+    $crawling->internalcrawler($tree, 'crawl_stats', $crawlparams);
 echo "OK." . chronometer('stop') . "\n";
 }
 

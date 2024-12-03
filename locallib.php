@@ -119,10 +119,10 @@ function up1hybridtree_last_records($howmany) {
 /**
  * This is the main function to start crawling the hybridtree and compute statistics
  * @global type $ReportingTimestamp
- * @param type $rootnode
  * @param type $maxdepth
+ * @param type $rootnode
  */
-function statscrawler($rootnode, $maxdepth = 6, $verb) {
+function statscrawler($rootnode, $verb, $maxdepth = 6) {
     global $ReportingTimestamp, $CourseInnerStats;
 
 chronometer('start');
@@ -240,7 +240,7 @@ function get_usercount_from_courses($courses, $verb) {
     rhtProgressBar($verb, 2, "  all ");
     foreach ($targetroles as $role) {
         rhtProgressBar($verb, 2, "  $role ");
-        $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, false, $verb);
+        $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, $verb, false);
         $total += $mycount;
         $res['enrolled:' . $role . ':all'] = $mycount;
     }
@@ -250,7 +250,7 @@ function get_usercount_from_courses($courses, $verb) {
     rhtProgressBar($verb, 2, "  neverconnected ");
     foreach ($targetroles as $role) {
         rhtProgressBar($verb, 2, "  $role ");
-        $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, true, $verb);
+        $mycount = count_unique_users_from_role_courses($rolemenu[$role], $courses, $verb, true);
         $total += $mycount;
         $res['enrolled:' . $role . ':neverconnected'] = $mycount;
     }
@@ -259,7 +259,7 @@ function get_usercount_from_courses($courses, $verb) {
     return $res;
 }
 
-function count_unique_users_from_role_courses($roleid, $courses, $neverconnected=false, $verb) {
+function count_unique_users_from_role_courses($roleid, $courses, $verb, $neverconnected=false) {
     $uniqusers = array();
     $progressmark = ($verb >=2 ? '.' : '');
     foreach ($courses as $courseid) {

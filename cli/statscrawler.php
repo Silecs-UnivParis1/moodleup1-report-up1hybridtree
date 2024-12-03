@@ -57,7 +57,7 @@ if ( ! empty($options['metastats']) ) {
 }
 
 if ($options['stats']) {
-    statscrawler($options['node'], $options['maxdepth'], $options['verb']);
+    statscrawler($options['node'], $options['verb'], $options['maxdepth']);
     return 0;
 }
 
